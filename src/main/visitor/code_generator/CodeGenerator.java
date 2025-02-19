@@ -125,7 +125,7 @@ public class CodeGenerator implements Visitor {
 
         code.append("\n\n\n");
         listVarDecl.forEach(varDecl -> {
-            if(varDecl.getType().equals("string")) {
+            if(varDecl.getType().equals("string") || varDecl.getType().equals("rgb")) {
                 varDecl.getListVarOptInit().forEach(varOpt -> {
                     code.append("free(").append(varOpt.getId().getLessema()).append(");\n");
                 });
@@ -163,7 +163,7 @@ public class CodeGenerator implements Visitor {
         List<VarOptInitOp> listVarOptInit = varDeclOp.getListVarOptInit();
         String type = varDeclOp.getType();
 
-        if(type.equals("string")) {
+        if(type.equals("string") || type.equals("rgb")) {
             if(isGlobal) { listStringGlobal.add(varDeclOp); }
 
             listVarOptInit.forEach(varOpt -> {
@@ -221,7 +221,7 @@ public class CodeGenerator implements Visitor {
         });
 
         listVarDecl.forEach(varDecl -> {
-            if(varDecl.getType().equals("string")) {
+            if(varDecl.getType().equals("string") || varDecl.getType().equals("rgb")) {
                 varDecl.getListVarOptInit().forEach(varOpt -> {
                     code.append("free(").append(varOpt.getId().getLessema()).append(");\n");
                 });
@@ -265,7 +265,7 @@ public class CodeGenerator implements Visitor {
             args.forEach(arg -> {
                 setStmt(arg, false); // Gli argomenti NON sono istruzioni
                 if (funSignatureMap.get(funCallOp.getId().getLessema()) != null) {
-                    if (funSignatureMap.get(funCallOp.getId().getLessema()).get(i.get()).contains("*") && !arg.getType().equals("string")) {
+                    if (funSignatureMap.get(funCallOp.getId().getLessema()).get(i.get()).contains("*") && !(arg.getType().equals("string") || arg.getType().equals("rgb"))) {
                         code.append("&");
                     }
                 }
@@ -318,7 +318,7 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(PVarOp pVarOp) {
-        String refTemp = pVarOp.isRef() ? typeTemp.equals("string") ? "" : "*" : "";
+        String refTemp = pVarOp.isRef() ? (typeTemp.equals("string") || typeTemp.equals("rgb")) ? "" : "*" : "";
         code.append(typeTemp).append(" ");
         code.append(refTemp).append(" ");
         code.append(pVarOp.getId().getLessema()).append(", ");
@@ -327,7 +327,7 @@ public class CodeGenerator implements Visitor {
     @Override
     public void visit(VarOptInitOp varOptInitOp) {
         String id = varOptInitOp.getId().getLessema();
-        if(varOptInitOp.getType().equals("string")) {
+        if(varOptInitOp.getType().equals("string") || varOptInitOp.getType().equals("rgb")) {
             code.append('*').append(id);
             if(!isGlobal) {
                 code.append(";\nallocate_string(&").append(id).append(", 256)");
@@ -355,7 +355,7 @@ public class CodeGenerator implements Visitor {
         List<ExprOp> exprList = assignOp.getExpressions();
 
         for (int i = 0; i < idList.size(); i++) {
-            if(exprList.get(i).getType().equals("string")) {
+            if(exprList.get(i).getType().equals("string") || exprList.get(i).getType().equals("rgb")) {
                 code.append("safe_strcpy(&");
                 idList.get(i).accept(this);
                 code.append(", ");
@@ -389,7 +389,7 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(ConstOp constOp) {
-        if (constOp.getType().equals("string")) {
+        if (constOp.getType().equals("string") || constOp.getType().equals("rgb")) {
             code.append("\"").append(constOp.getValue()).append("\"");
         }
         else
@@ -398,8 +398,8 @@ public class CodeGenerator implements Visitor {
 
     @Override
     public void visit(BinaryExprOp binaryExprOp) {
-        boolean isLeftString = binaryExprOp.getLeft().getType().equals("string");
-        boolean isRightString = binaryExprOp.getRight().getType().equals("string");
+        boolean isLeftString = binaryExprOp.getLeft().getType().equals("string") || binaryExprOp.getLeft().getType().equals("rgb");
+        boolean isRightString = binaryExprOp.getRight().getType().equals("string") || binaryExprOp.getRight().getType().equals("rgb");
 
         // Se uno dei due operandi è una stringa, allora si tratta di una concatenazione
         if (isLeftString || isRightString) {
@@ -409,7 +409,6 @@ public class CodeGenerator implements Visitor {
                 return;
             } else { // Altrimenti si tratta di una concatenazione di stringhe
                 code.append("strcpy(arrayConcat[(currentIndex++)%MAX_CONCAT_SIZE], safe_strcat(");
-
                 if (!isLeftString) { // Se il primo operando non è una stringa, lo converte in stringa
                     toStringType(binaryExprOp.getLeft());
                     binaryExprOp.getLeft().accept(this);
@@ -450,7 +449,7 @@ public class CodeGenerator implements Visitor {
                 case "bool" -> code.append("to_string((bool[]){");
             }
         } else if (expr instanceof BinaryExprOp || expr instanceof UnaryExprOp) {
-            if (!expr.getType().equals("string")) {
+            if (!(expr.getType().equals("string") || expr.getType().equals("rgb"))) {
                 switch (expr.getType()) {
                     case "int" -> code.append("to_string((int[]){");
                     case "double" -> code.append("to_string((double[]){");
@@ -525,7 +524,7 @@ public class CodeGenerator implements Visitor {
     public void visit(ReadOp readOp) {
         List<Identifier> idList = readOp.getIdentifiers();
         idList.forEach(id -> {
-            if(id.getType().equals("string")) {
+            if(id.getType().equals("string") || id.getType().equals("rgb")) {
                 code.append("safe_scanf(&");
                 id.accept(this);
             }
@@ -597,7 +596,7 @@ public class CodeGenerator implements Visitor {
 
     private String typeConvert(String type) {
         // se la stringa inizia con ref allora resituisce la stringa senza ref e con *
-        if(type.equals("string") || type.equals("ref string")) {
+        if(type.equals("string") || type.equals("ref string") || type.equals("rgb") || type.equals("ref rgb")) {
             return "char*";
         }
         else if(type.startsWith("ref")) {
@@ -613,7 +612,7 @@ public class CodeGenerator implements Visitor {
             params.forEach(parDeclOp ->
                     parDeclOp.getPVars().forEach(pVarOp -> {
                         // Se il parametro è di tipo "string", lo mappiamo a "char*"
-                        String paramType = parDeclOp.getType().equals("string") ? "char*" : parDeclOp.getType();
+                        String paramType = (parDeclOp.getType().equals("string") || parDeclOp.getType().equals("rgb")) ? "char*" : parDeclOp.getType();
 
                         // Costruiamo la stringa per il parametro
                         StringBuilder paramBuilder = new StringBuilder(paramType);
@@ -621,7 +620,7 @@ public class CodeGenerator implements Visitor {
                         // Se il parametro viene passato per riferimento, aggiungiamo "*" salvo il caso di stringa
                         if (pVarOp.isRef()) {
                             // Per i parametri di tipo "string" si mantiene solo lo spazio, gia abbiamo messo "char*"
-                            paramBuilder.append(parDeclOp.getType().equals("string") ? " " : "* ");
+                            paramBuilder.append((parDeclOp.getType().equals("string") || parDeclOp.getType().equals("rgb")) ? " " : "* ");
                         } else {
                             paramBuilder.append(" ");
                         }

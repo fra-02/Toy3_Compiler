@@ -28,7 +28,9 @@ import main.nodes.statements.IfThenOp;
 import main.nodes.statements.WhileOp;
 import main.nodes.statements.ReturnOp;
 import main.nodes.statements.BodyOp;
+
 import main.nodes.types.ConstOp;
+import main.nodes.types.Rgb;
 
 parser code {:
     List<Identifier> varList = new ArrayList<>(); // Lista delle variabili
@@ -44,8 +46,8 @@ parser code {:
 
 
 // Terminali
-terminal PROGRAM, BEGIN, END, SEMI, COLON, COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC;
-terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO;
+terminal PROGRAM, BEGIN, END, SEMI, COLON, COMMA, DEF, IDEF, LPAR, RPAR, LBRAC, RBRAC, FOR, STEP, INIT;
+terminal INT, BOOL, DOUBLE, STRING, CHAR, RGB, TRUE, FALSE, RED, GREEN, BLUE, RETURN, IF, THEN, ELSE, WHILE, DO;
 terminal PLUS, MINUS, TIMES, DIV, ASSIGN, ASSIGNDECL, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, IN, OUT, OUTNL, REF, PIPE;
 terminal int INT_CONST;
 terminal double DOUBLE_CONST;
@@ -142,6 +144,16 @@ DefDecl ::= DEF ID:id LPAR ParDecls:paramList RPAR OptType:t Body:body
             {:
                 RESULT = new FunDeclOp(new Identifier((String) id), (List<ParDeclOp>) paramList, (String) t, (BodyOp) body);
                 parDeclList.clear();
+            :}
+          | IDEF ID:id LPAR ParDecls:paramList RPAR Body:body
+            {:
+                RESULT = new FunDeclOp(new Identifier((String) id), (List<ParDeclOp>) paramList, "int", (BodyOp) body);
+                parDeclList.clear();
+            :}
+          | IDEF ID:id LPAR RPAR Body:body
+            {:
+              RESULT = new FunDeclOp(new Identifier((String) id), null, "int", (BodyOp) body);
+              parDeclList.clear();
             :}
           | DEF ID:id LPAR RPAR OptType:t Body:body
             {:
@@ -240,6 +252,7 @@ Type ::= INT    {: RESULT = "int";    :}
        | BOOL   {: RESULT = "bool";   :}
        | DOUBLE {: RESULT = "double"; :}
        | STRING {: RESULT = "string"; :}
+       | RGB    {: RESULT = "rgb";    :}
        | CHAR   {: RESULT = "char";   :};
 
 Constant ::= TRUE:bool {: RESULT = new ConstOp(bool); :}
@@ -247,4 +260,7 @@ Constant ::= TRUE:bool {: RESULT = new ConstOp(bool); :}
            | INT_CONST:intc {: RESULT = new ConstOp(intc); :}
            | DOUBLE_CONST:doublec {: RESULT = new ConstOp(doublec); :}
            | CHAR_CONST:charc {: RESULT = new ConstOp(charc); :}
-           | STRING_CONST:stringc {: RESULT = new ConstOp(stringc); :};
+           | STRING_CONST:stringc {: RESULT = new ConstOp(stringc); :}
+           | RED:color {: RESULT = new ConstOp(color); :}
+           | BLUE:color {: RESULT = new ConstOp(color); :}
+           | GREEN:color {: RESULT = new ConstOp(color); :};

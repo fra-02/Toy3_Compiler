@@ -1,5 +1,6 @@
 package toy3;
 import java_cup.runtime.*;
+import main.nodes.types.Rgb;
 
 %%
 
@@ -69,8 +70,13 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
     "double"           { return symbol(sym.DOUBLE); }
     "string"           { return symbol(sym.STRING); }
     "char"             { return symbol(sym.CHAR); }
+    "rgb"              { return symbol(sym.RGB); }
     "true"             { return symbol(sym.TRUE, true); }
     "false"            { return symbol(sym.FALSE, false); }
+    "red"              { return symbol(sym.RED, Rgb.RED); }
+    "green"            { return symbol(sym.GREEN, Rgb.GREEN); }
+    "blue"             { return symbol(sym.BLUE, Rgb.BLUE); }
+    "idef"             { return symbol(sym.IDEF); }
     "def"              { return symbol(sym.DEF); }
     "if"               { return symbol(sym.IF); }
     "then"             { return symbol(sym.THEN); }
