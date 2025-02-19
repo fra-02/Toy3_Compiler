@@ -1,6 +1,15 @@
 program
 
 begin
-x = 1 : int;
-"ciao"+x !>>;
+
+ciao : int;
+
+init(x : 5; y : 10;)
+do {
+    "stampa x: " + x !>>;
+    "stampa y: " + y !>>;
+}
+for(x +y)
+step(x | y := x + 1, y - 1);
+
 end

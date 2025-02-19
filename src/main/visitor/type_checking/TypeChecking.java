@@ -75,6 +75,13 @@ public class TypeChecking implements Visitor {
                 break;
             case "ReturnOp":
                 visit((ReturnOp) stmt);
+                break;
+            case "FunCallOp":
+                visit((FunCallOp) stmt);
+                break;
+            case "InitDoForStepOp":
+                visit((InitDoForStepOp) stmt);
+                break;
         }
     }
 
@@ -114,6 +121,24 @@ public class TypeChecking implements Visitor {
     @Override
     public void visit(ConstOp constOp) {
         constOp.setType(constOp.getConstantType());
+    }
+
+    @Override
+    public void visit(InitDoForStepOp initDoForStepOp) {
+        symbolTable.setCurrentScope(initDoForStepOp.getScope());
+
+        if (initDoForStepOp.getVarDeclList() != null)
+            for(VarDeclOp varDeclOp : initDoForStepOp.getVarDeclList())
+                varDeclOp.accept(this);
+        if (initDoForStepOp.getAssignStmt() != null)
+            initDoForStepOp.getAssignStmt().accept(this);
+        if (initDoForStepOp.getCondition() != null)
+            initDoForStepOp.getCondition().accept(this);
+        if (initDoForStepOp.getStmtList() != null)
+            for(StatementOp statementOp : initDoForStepOp.getStmtList())
+                statementOp.accept(this);
+
+        symbolTable.setCurrentScope(symbolTable.getCurrentScope().getParent());
     }
 
     @Override

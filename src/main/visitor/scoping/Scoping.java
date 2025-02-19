@@ -303,6 +303,23 @@ public class Scoping implements Visitor {
     public void visit(ConstOp constOp) {
     }
 
+    @Override
+    public void visit(InitDoForStepOp initDoForStepOp) {
+        symbolTable.enterScope();
+        initDoForStepOp.setScope(symbolTable.getCurrentScope());
+
+        if (initDoForStepOp.getVarDeclList() != null)
+            initDoForStepOp.getVarDeclList().forEach(varDeclOp -> varDeclOp.accept(this));
+        if (initDoForStepOp.getAssignStmt() != null)
+            initDoForStepOp.getAssignStmt().accept(this);
+        if (initDoForStepOp.getCondition() != null)
+            initDoForStepOp.getCondition().accept(this);
+        if (initDoForStepOp.getStmtList() != null)
+            initDoForStepOp.getStmtList().forEach(stmt -> stmt.accept(this));
+
+        symbolTable.exitScope();
+    }
+
     private String functionSignature(FunDeclOp funDeclOp) {
 
         StringBuilder sb = new StringBuilder();

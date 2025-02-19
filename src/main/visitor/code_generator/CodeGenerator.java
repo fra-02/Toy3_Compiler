@@ -397,6 +397,31 @@ public class CodeGenerator implements Visitor {
     }
 
     @Override
+    public void visit(InitDoForStepOp initDoForStepOp) {
+        List<VarDeclOp> varDeclList = initDoForStepOp.getVarDeclList();
+        AssignOp assignStmt = initDoForStepOp.getAssignStmt();
+        ExprOp condition = initDoForStepOp.getCondition();
+        List<StatementOp> stmtList = initDoForStepOp.getStmtList();
+
+        if (varDeclList != null)
+            varDeclList.forEach(varDecl -> varDecl.accept(this));
+        code.append("do {\n");
+        if (stmtList != null)
+            stmtList.forEach(stmt -> stmt.accept(this) );
+        if (assignStmt != null)
+            assignStmt.accept(this);
+
+        code.append("}\n");
+        code.append("while ( ");
+        if (condition != null)
+            condition.accept(this);
+        else
+            code.append("1");
+
+        code.append(");\n");
+    }
+
+    @Override
     public void visit(BinaryExprOp binaryExprOp) {
         boolean isLeftString = binaryExprOp.getLeft().getType().equals("string");
         boolean isRightString = binaryExprOp.getRight().getType().equals("string");
