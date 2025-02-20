@@ -22,7 +22,7 @@ Whitespace = {LineTerminator} | [ \t\f] // spazi, tabulazioni, a capo
 
 // Numeri
 INT_CONST    = \d+ // interi positivi o negativi
-DOUBLE_CONST = (\d*\.\d+|\d+\.\d*)([eE][+-]?\d+)? // numeri in virgola mobile con o senza esponente (es. 1.0, 1.0e-1)
+DOUBLE_CONST = \d+\.\d+(\d+\.\d*)([eE][+-]?\d+)? // numeri in virgola mobile con o senza esponente (es. 1.0, 1.0e-1)
 
 // Escape
 ESCAPE_SEQUENCE = \\[bfnrt'\\] // Escape validi
@@ -75,7 +75,12 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
     "if"               { return symbol(sym.IF); }
     "then"             { return symbol(sym.THEN); }
     "else"             { return symbol(sym.ELSE); }
+    "let"              { return symbol(sym.LET); }
     "while"            { return symbol(sym.WHILE); }
+    "loop"             { return symbol(sym.LOOP); }
+    "otherwise"        { return symbol(sym.OTHERWISE); }
+    "go"               { return symbol(sym.GO); }
+    "when"             { return symbol(sym.WHEN); }
     "do"               { return symbol(sym.DO); }
     "return"           { return symbol(sym.RETURN); }
     "not"              { return symbol(sym.NOT); }
@@ -85,6 +90,7 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
 
     /* Simboli */
 
+    "."                { return symbol(sym.DOT); }
     ";"                { return symbol(sym.SEMI); }
     ":"                { return symbol(sym.COLON); }
     ","                { return symbol(sym.COMMA); }

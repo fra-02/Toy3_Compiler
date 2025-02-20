@@ -28,6 +28,9 @@ import main.nodes.statements.IfThenOp;
 import main.nodes.statements.WhileOp;
 import main.nodes.statements.ReturnOp;
 import main.nodes.statements.BodyOp;
+import main.nodes.statements.WhenStmtOp;
+import main.nodes.statements.LetGoWhenOp;
+
 import main.nodes.types.ConstOp;
 
 parser code {:
@@ -40,12 +43,13 @@ parser code {:
     Stack<List<VarDeclOp>> varDeclStack = new Stack<>(); // Stack delle dichiarazioni delle variabili
     List<VarDeclOp> varDeclList = new ArrayList<>(); // Lista delle dichiarazioni delle variabili
     List<Object> declList = new ArrayList<>(); // Lista delle dichiarazioni
+    List<WhenStmtOp> whenStmtOpList = new ArrayList<>(); // lista dei whileStmt
 :};
 
 
 // Terminali
 terminal PROGRAM, BEGIN, END, SEMI, COLON, COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC;
-terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO;
+terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO, LET, WHEN, DOT, LOOP, OTHERWISE, GO;
 terminal PLUS, MINUS, TIMES, DIV, ASSIGN, ASSIGNDECL, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, IN, OUT, OUTNL, REF, PIPE;
 terminal int INT_CONST;
 terminal double DOUBLE_CONST;
@@ -56,7 +60,7 @@ terminal String ID;
 // Non-terminali
 non terminal Program;
 non terminal Decls, VarDecls, VarDecl, VarsOptInit, TypeOrConstant, Type, Constant, DefDecl, ParDecls, ParDecl, PVars, PVar;
-non terminal OptType, Body, Statements, Stat, Vars, Exprs, FunCall, Expr;
+non terminal OptType, Body, Statements, Stat, Vars, Exprs, FunCall, Expr, WhenStmts, WhenStmt;
 
 // Precedenze e associatività
 precedence left OR;
@@ -196,7 +200,24 @@ Stat ::= Vars:v IN SEMI                                {: RESULT = new ReadOp((L
        | IF LPAR Expr:e RPAR THEN Body:b1 ELSE Body:b2 {: RESULT = new IfThenElseOp((ExprOp) e,(BodyOp) b1,(BodyOp) b2); :}
        | IF LPAR Expr:e RPAR THEN Body:b               {: RESULT = new IfThenOp((ExprOp) e,(BodyOp) b); :}
        | WHILE LPAR Expr:e RPAR DO Body:b              {: RESULT = new WhileOp((ExprOp) e, (BodyOp) b); :}
-       | RETURN Expr:e SEMI                            {: RESULT = new ReturnOp((ExprOp) e); :};
+       | RETURN Expr:e SEMI                            {: RESULT = new ReturnOp((ExprOp) e); :}
+       | LET VarDecls:vars
+         GO WhenStmts:whenStmts
+         OTHERWISE DOT DO LBRAC Statements:stmts RBRAC SEMI
+            {:
+                RESULT = new LetGoWhenOp((List<VarDeclOp>)((Stack<List<VarDeclOp>>) vars).pop(), (List<WhenStmtOp>) whenStmts, (List<StatementOp>) stmts);
+                whenStmtOpList.clear();
+                statList.clear();
+            :};
+
+WhenStmts ::= WhenStmt:whenStmt WhenStmts                    {: whenStmtOpList.add(0, (WhenStmtOp) whenStmt); RESULT = whenStmtOpList; :}
+      |                                                          {: RESULT = new ArrayList<StatementOp>(); :};
+
+WhenStmt ::=  DOT WHEN LPAR Expr:e RPAR DOT LOOP LBRAC Statements:stmts RBRAC
+        {:
+                RESULT = new WhenStmtOp((ExprOp) e, (List<StatementOp>) stmts);
+                statList.clear();
+        :};
 
 // Variabili
 Vars ::= ID:id PIPE Vars {: varList.add(0, new Identifier((String) id)); RESULT = varList; :}

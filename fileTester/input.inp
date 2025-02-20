@@ -1,6 +1,18 @@
 program
 
 begin
-x = 1 : int;
-"ciao"+x !>>;
+
+let a = 1 | b = 2: int;
+go.when(a>b) .loop {
+    "uno" !>>;
+    a := a-1;
+}
+.when(a<b) .loop {
+    "due"!>>;
+    a := a + 1;
+}
+otherwise.do {
+"sono uguali" !>>;
+};
+
 end

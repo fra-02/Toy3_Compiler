@@ -117,6 +117,36 @@ public class TypeChecking implements Visitor {
     }
 
     @Override
+    public void visit(WhenStmtOp whenStmtOp) {
+        ExprOp cond = whenStmtOp.getCondition();
+        cond.accept(this);
+        if (!(cond.getType().equals("bool"))) {
+            System.err.print("ERROR: Invalid type of condition in when statement");
+            System.exit(1);
+        }
+        else whenStmtOp.setType("notype");
+
+        whenStmtOp.getStmtList().forEach(statementOp -> statementOp.accept(this));
+    }
+
+    @Override
+    public void visit(LetGoWhenOp letGoWhenOp) {
+        symbolTable.setCurrentScope(letGoWhenOp.getScope());
+        if (letGoWhenOp.getVarDeclOpList() != null)
+            letGoWhenOp.getVarDeclOpList().forEach(varDeclOp -> varDeclOp.accept(this));
+
+        if (letGoWhenOp.getWhileStmtOpList() != null)
+            letGoWhenOp.getWhileStmtOpList().forEach(whenStmtOp -> whenStmtOp.accept(this));
+
+        if (letGoWhenOp.getOtherwiseStmtList() != null)
+            letGoWhenOp.getOtherwiseStmtList().forEach(statementOp -> statementOp.accept(this));
+
+        letGoWhenOp.setType("notype");
+
+        symbolTable.setCurrentScope(symbolTable.getCurrentScope().getParent());
+    }
+
+    @Override
     public void visit(Identifier id) {
         String type;
         if(isFun) {

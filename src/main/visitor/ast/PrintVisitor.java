@@ -55,6 +55,31 @@ public class PrintVisitor implements Visitor {
     }
 
     @Override
+    public void visit(WhenStmtOp whenStmtOp) {
+
+        printIndent();
+        System.out.println("WhenStmtOp: ");
+        indentLevel++;
+
+        whenStmtOp.getCondition().accept(this);
+        whenStmtOp.getStmtList().forEach(statementOp -> statementOp.accept(this));
+
+        indentLevel--;
+    }
+
+    @Override
+    public void visit(LetGoWhenOp letGoWhenOp) {
+        printIndent();
+        indentLevel++;
+
+        letGoWhenOp.getVarDeclOpList().forEach(varDeclOp -> varDeclOp.accept(this));
+        letGoWhenOp.getWhileStmtOpList().forEach(whenStmtOp -> whenStmtOp.accept(this));
+        letGoWhenOp.getOtherwiseStmtList().forEach(statementOp -> statementOp.accept(this));
+
+        indentLevel--;
+    }
+
+    @Override
     public void visit(VarDeclOp varDeclOp) {
 
         printIndent();

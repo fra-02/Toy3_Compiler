@@ -301,6 +301,38 @@ public class Scoping implements Visitor {
 
     @Override
     public void visit(ConstOp constOp) {
+
+    }
+
+    @Override
+    public void visit(WhenStmtOp whenStmtOp) {
+        if(whenStmtOp.getCondition() != null)
+                whenStmtOp.getCondition().accept(this);
+
+        if(whenStmtOp.getStmtList() != null)
+            whenStmtOp.getStmtList().forEach(statementOp -> statementOp.accept(this));
+
+
+    }
+
+    @Override
+    public void visit(LetGoWhenOp letGoWhenOp) {
+            symbolTable.enterScope();
+            letGoWhenOp.setScope(symbolTable.getCurrentScope());
+            letGoWhenOp.setFunLabel(funTemp);
+
+            if (letGoWhenOp.getVarDeclOpList() != null)
+               letGoWhenOp.getVarDeclOpList().forEach(varDeclOp -> varDeclOp.accept(this));
+
+            symbolTable.printTable();
+
+            if (letGoWhenOp.getWhileStmtOpList() != null)
+                letGoWhenOp.getWhileStmtOpList().forEach(whenStmtOp -> whenStmtOp.accept(this));
+
+            if (letGoWhenOp.getOtherwiseStmtList() != null)
+                letGoWhenOp.getOtherwiseStmtList().forEach(statementOp -> statementOp.accept(this));
+
+        symbolTable.exitScope();
     }
 
     private String functionSignature(FunDeclOp funDeclOp) {
