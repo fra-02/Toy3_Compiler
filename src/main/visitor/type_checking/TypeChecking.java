@@ -12,6 +12,7 @@ import main.nodes.statements.*;
 import main.nodes.types.ConstOp;
 import main.visitor.Visitor;
 import main.visitor.scoping.Kind;
+import main.visitor.scoping.Scope;
 import main.visitor.scoping.SymbolTable;
 import main.visitor.tables.BinaryOpTable;
 import main.visitor.tables.UnaryOpTable;
@@ -23,6 +24,7 @@ public class TypeChecking implements Visitor {
     private boolean isFun = false;
     private String currentFunType;
     private String tempType;
+    private Scope globalScope = new Scope(null);
 
     @Override
     public void visit(IfThenOp ifThenOp) {
@@ -114,6 +116,23 @@ public class TypeChecking implements Visitor {
     @Override
     public void visit(ConstOp constOp) {
         constOp.setType(constOp.getConstantType());
+    }
+
+    @Override
+    public void visit(LetInOp letInOp) {
+        Scope precScope = symbolTable.getCurrentScope();
+        symbolTable.setCurrentScope(globalScope);
+        letInOp.setScope(symbolTable.getCurrentScope());
+
+        if(letInOp.getVarDeclOpList() != null)
+            letInOp.getVarDeclOpList().forEach(varDeclOp -> varDeclOp.accept(this));
+
+        symbolTable.setCurrentScope(precScope);
+
+        if(letInOp.getStatementOpList() != null)
+            letInOp.getStatementOpList().forEach(statementOp -> statementOp.accept(this));
+
+        letInOp.setType("notype");
     }
 
     @Override
@@ -298,6 +317,8 @@ public class TypeChecking implements Visitor {
     @Override
     public void visit(ProgramOp programOp) {
         symbolTable.setCurrentScope(programOp.getScope());
+        globalScope = symbolTable.getCurrentScope();
+
         for(Object decl : programOp.getListDecls()) {
             if (decl instanceof VarDeclOp varDeclOp) {
                 varDeclOp.accept(this);

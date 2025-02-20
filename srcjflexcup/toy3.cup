@@ -28,6 +28,8 @@ import main.nodes.statements.IfThenOp;
 import main.nodes.statements.WhileOp;
 import main.nodes.statements.ReturnOp;
 import main.nodes.statements.BodyOp;
+import main.nodes.statements.LetInOp;
+
 import main.nodes.types.ConstOp;
 
 parser code {:
@@ -45,7 +47,7 @@ parser code {:
 
 // Terminali
 terminal PROGRAM, BEGIN, END, SEMI, COLON, COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC;
-terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO;
+terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO, LET;
 terminal PLUS, MINUS, TIMES, DIV, ASSIGN, ASSIGNDECL, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, IN, OUT, OUTNL, REF, PIPE;
 terminal int INT_CONST;
 terminal double DOUBLE_CONST;
@@ -193,10 +195,14 @@ Stat ::= Vars:v IN SEMI                                {: RESULT = new ReadOp((L
                 RESULT = call;
                 exprList.clear();
          :}
-       | IF LPAR Expr:e RPAR THEN Body:b1 ELSE Body:b2 {: RESULT = new IfThenElseOp((ExprOp) e,(BodyOp) b1,(BodyOp) b2); :}
-       | IF LPAR Expr:e RPAR THEN Body:b               {: RESULT = new IfThenOp((ExprOp) e,(BodyOp) b); :}
-       | WHILE LPAR Expr:e RPAR DO Body:b              {: RESULT = new WhileOp((ExprOp) e, (BodyOp) b); :}
-       | RETURN Expr:e SEMI                            {: RESULT = new ReturnOp((ExprOp) e); :};
+       | IF LPAR Expr:e RPAR THEN Body:b1 ELSE Body:b2              {: RESULT = new IfThenElseOp((ExprOp) e,(BodyOp) b1,(BodyOp) b2); :}
+       | IF LPAR Expr:e RPAR THEN Body:b                            {: RESULT = new IfThenOp((ExprOp) e,(BodyOp) b); :}
+       | WHILE LPAR Expr:e RPAR DO Body:b                           {: RESULT = new WhileOp((ExprOp) e, (BodyOp) b); :}
+       | RETURN Expr:e SEMI                                         {: RESULT = new ReturnOp((ExprOp) e); :}
+       | LET VarDecls:vars IN Statements:stmts END LET SEMI
+        {:      RESULT = new LetInOp((List<VarDeclOp>)((Stack<List<VarDeclOp>>) vars).pop(), (List<StatementOp>) stmts);
+                statList.clear();
+        :};
 
 // Variabili
 Vars ::= ID:id PIPE Vars {: varList.add(0, new Identifier((String) id)); RESULT = varList; :}

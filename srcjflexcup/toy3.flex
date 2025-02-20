@@ -72,6 +72,8 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
     "true"             { return symbol(sym.TRUE, true); }
     "false"            { return symbol(sym.FALSE, false); }
     "def"              { return symbol(sym.DEF); }
+    "let"              { return symbol(sym.LET); }
+    "in"               { return symbol(sym.IN); }
     "if"               { return symbol(sym.IF); }
     "then"             { return symbol(sym.THEN); }
     "else"             { return symbol(sym.ELSE); }

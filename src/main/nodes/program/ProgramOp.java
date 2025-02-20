@@ -1,6 +1,7 @@
 
 package main.nodes.program;
 
+import main.nodes.declarations.VarDeclOp;
 import main.visitor.Visitor;
 import main.visitor.Node;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ public class ProgramOp extends Node {
 
     private List<Object> listDecls;
     private BeginEndOp beginEndOp;
+    private List<VarDeclOp> letDecls = new ArrayList<>();
 
     public ProgramOp(List<Object> listDecls, BeginEndOp beginEndOp) {
         this.listDecls = new ArrayList<>(listDecls);
@@ -28,6 +30,20 @@ public class ProgramOp extends Node {
         this.beginEndOp = beginEndOp;
     }
 
+    public void setListDecls(List<Object> listDecls) {
+        this.listDecls = listDecls;
+    }
+
+
+
+    public List<VarDeclOp> getLetDecls() {
+        return letDecls;
+    }
+
+    public void setLetDecls(List<VarDeclOp> letDecls) {
+        this.letDecls = letDecls;
+    }
+
     @Override
     public String toString() {
         return "ProgramOp{ "+
@@ -35,6 +51,8 @@ public class ProgramOp extends Node {
             ", beginBeginEndOp= " + beginEndOp +
             " }";
     }
+
+
 
     public void accept(Visitor visitor) {
         visitor.visit(this);

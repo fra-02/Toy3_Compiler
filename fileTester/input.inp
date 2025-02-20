@@ -1,6 +1,20 @@
 program
-
+ a : int;
+ c: double;
+ def fun() {}
 begin
-x = 1 : int;
-"ciao"+x !>>;
+let
+    s = "ciao" : string;
+in
+    s!>>;
+    let
+        sat : int;
+    in
+        sat := 3;
+    end let;
+end let;
+
+
+s !>>;
+
 end

@@ -59,6 +59,11 @@ public class CodeGenerator implements Visitor {
 
         code.append("\n\n\n// INIZIO DEL CODICE GENERATO\n\n");
 
+        isGlobal = true;
+        if(programOp.getLetDecls() != null)
+            programOp.getLetDecls().forEach(varDeclOp -> varDeclOp.accept(this));
+        isGlobal = false;
+
         for (Object obj : programOp.getListDecls()) {
             isGlobal = true;
             // Se l'oggetto è una dichiarazione di variabile, visita l'oggetto per generare il codice
@@ -394,6 +399,13 @@ public class CodeGenerator implements Visitor {
         }
         else
             code.append(constOp.getValue());
+    }
+
+    @Override
+    public void visit(LetInOp letInOp) {
+        code.append("{\n");
+        letInOp.getStatementOpList().forEach(statementOp -> statementOp.accept(this));
+        code.append("}\n");
     }
 
     @Override
