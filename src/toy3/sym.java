@@ -8,56 +8,60 @@ package toy3;
 /** CUP generated interface containing symbol constants. */
 public interface sym {
   /* terminals */
-  public static final int CHAR_CONST = 49;
-  public static final int ASSIGNDECL = 31;
+  public static final int CHAR_CONST = 53;
+  public static final int MAP = 26;
+  public static final int ASSIGNDECL = 35;
   public static final int CHAR = 17;
-  public static final int GE = 33;
-  public static final int DOUBLE_CONST = 47;
+  public static final int GE = 37;
+  public static final int DOUBLE_CONST = 51;
   public static final int DOUBLE = 15;
   public static final int SEMI = 5;
   public static final int INT = 13;
-  public static final int OUT = 42;
+  public static final int OUT = 46;
   public static final int RBRAC = 12;
-  public static final int REF = 44;
-  public static final int MINUS = 27;
-  public static final int OUTNL = 43;
-  public static final int AND = 39;
-  public static final int NOT = 38;
-  public static final int LT = 34;
+  public static final int REF = 48;
+  public static final int MINUS = 31;
+  public static final int OUTNL = 47;
+  public static final int AND = 43;
+  public static final int NOT = 42;
+  public static final int LT = 38;
   public static final int RPAR = 10;
-  public static final int IN = 41;
-  public static final int OR = 40;
+  public static final int IN = 45;
+  public static final int OR = 44;
   public static final int BOOL = 14;
   public static final int COMMA = 7;
-  public static final int DIV = 29;
+  public static final int OP = 27;
+  public static final int DIV = 33;
   public static final int BEGIN = 3;
-  public static final int PLUS = 26;
-  public static final int ASSIGN = 30;
+  public static final int PLUS = 30;
+  public static final int ASSIGN = 34;
   public static final int IF = 21;
-  public static final int ID = 50;
-  public static final int LE = 35;
+  public static final int ID = 54;
+  public static final int LE = 39;
   public static final int EOF = 0;
   public static final int RETURN = 20;
-  public static final int INT_CONST = 46;
+  public static final int INT_CONST = 50;
   public static final int TRUE = 18;
   public static final int error = 1;
   public static final int PROGRAM = 2;
-  public static final int PIPE = 45;
-  public static final int EQ = 36;
-  public static final int TIMES = 28;
+  public static final int MUL = 28;
+  public static final int PIPE = 49;
+  public static final int ADD = 29;
+  public static final int EQ = 40;
+  public static final int TIMES = 32;
   public static final int COLON = 6;
   public static final int ELSE = 23;
   public static final int WHILE = 24;
   public static final int THEN = 22;
-  public static final int NE = 37;
+  public static final int NE = 41;
   public static final int END = 4;
   public static final int LPAR = 9;
   public static final int STRING = 16;
   public static final int DEF = 8;
   public static final int LBRAC = 11;
   public static final int FALSE = 19;
-  public static final int STRING_CONST = 48;
-  public static final int GT = 32;
+  public static final int STRING_CONST = 52;
+  public static final int GT = 36;
   public static final int DO = 25;
   public static final String[] terminalNames = new String[] {
   "EOF",
@@ -86,6 +90,10 @@ public interface sym {
   "ELSE",
   "WHILE",
   "DO",
+  "MAP",
+  "OP",
+  "MUL",
+  "ADD",
   "PLUS",
   "MINUS",
   "TIMES",

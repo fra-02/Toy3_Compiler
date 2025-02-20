@@ -55,6 +55,21 @@ public class PrintVisitor implements Visitor {
     }
 
     @Override
+    public void visit(MapOp mapOp) {
+        printIndent();
+        ////System.out.println("MapOp: ");
+        indentLevel ++;
+
+        ////System.out.println("Op: " + mapOp.getOp());
+        mapOp.getFun().accept(this);
+
+        if(mapOp.getExprList() != null)
+            mapOp.getExprList().forEach(exprOp -> exprOp.accept(this));
+
+        indentLevel--;
+    }
+
+    @Override
     public void visit(VarDeclOp varDeclOp) {
 
         printIndent();

@@ -2,10 +2,7 @@ package main.visitor.code_generator;
 
 import main.nodes.common.Identifier;
 import main.nodes.declarations.*;
-import main.nodes.expr.BinaryExprOp;
-import main.nodes.expr.ExprOp;
-import main.nodes.expr.FunCallOp;
-import main.nodes.expr.UnaryExprOp;
+import main.nodes.expr.*;
 import main.nodes.program.BeginEndOp;
 import main.nodes.program.ProgramOp;
 import main.nodes.statements.*;
@@ -394,6 +391,23 @@ public class CodeGenerator implements Visitor {
         }
         else
             code.append(constOp.getValue());
+    }
+
+    @Override
+    public void visit(MapOp mapOp) {
+        String idFun = mapOp.getFun().getLessema();
+        Op op = mapOp.getOp();
+        List<ExprOp> exprOpList = mapOp.getExprList();
+
+        exprOpList.forEach(exprOp -> {
+            code.append(idFun).append("(");
+            exprOp.accept(this);
+            code.append(") ").append(op.convertOp());
+        });
+
+        code.deleteCharAt(code.length()-2);
+        code.setCharAt(code.length() - 1, ';');
+        code.append("\n");
     }
 
     @Override

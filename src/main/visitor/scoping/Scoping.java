@@ -2,10 +2,7 @@ package main.visitor.scoping;
 
 import main.nodes.common.Identifier;
 import main.nodes.declarations.*;
-import main.nodes.expr.BinaryExprOp;
-import main.nodes.expr.ExprOp;
-import main.nodes.expr.FunCallOp;
-import main.nodes.expr.UnaryExprOp;
+import main.nodes.expr.*;
 import main.nodes.program.BeginEndOp;
 import main.nodes.program.ProgramOp;
 import main.nodes.statements.*;
@@ -301,6 +298,22 @@ public class Scoping implements Visitor {
 
     @Override
     public void visit(ConstOp constOp) {
+    }
+
+    @Override
+    public void visit(MapOp mapOp) {
+
+        Identifier fun = mapOp.getFun();
+        Op op = mapOp.getOp();
+        List<ExprOp> exprList = mapOp.getExprList();
+
+        if(symbolTable.lookup(Kind.FUN, fun.getLessema()) == null) {
+            System.err.print("ERROR: Variable " + fun.getLessema() + " not declared");
+            System.exit(1);
+        }
+
+        exprList.forEach(expr -> expr.accept(this));
+
     }
 
     private String functionSignature(FunDeclOp funDeclOp) {

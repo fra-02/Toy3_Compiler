@@ -16,6 +16,7 @@ import main.nodes.expr.ExprOp;
 import main.nodes.expr.BinaryExprOp;
 import main.nodes.expr.UnaryExprOp;
 import main.nodes.expr.FunCallOp;
+import main.nodes.expr.Op;
 
 import main.nodes.common.Identifier;
 
@@ -28,6 +29,8 @@ import main.nodes.statements.IfThenOp;
 import main.nodes.statements.WhileOp;
 import main.nodes.statements.ReturnOp;
 import main.nodes.statements.BodyOp;
+import main.nodes.expr.MapOp;
+
 import main.nodes.types.ConstOp;
 
 parser code {:
@@ -45,7 +48,7 @@ parser code {:
 
 // Terminali
 terminal PROGRAM, BEGIN, END, SEMI, COLON, COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC;
-terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO;
+terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO, MAP, OP, MUL, ADD;
 terminal PLUS, MINUS, TIMES, DIV, ASSIGN, ASSIGNDECL, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, IN, OUT, OUTNL, REF, PIPE;
 terminal int INT_CONST;
 terminal double DOUBLE_CONST;
@@ -56,7 +59,7 @@ terminal String ID;
 // Non-terminali
 non terminal Program;
 non terminal Decls, VarDecls, VarDecl, VarsOptInit, TypeOrConstant, Type, Constant, DefDecl, ParDecls, ParDecl, PVars, PVar;
-non terminal OptType, Body, Statements, Stat, Vars, Exprs, FunCall, Expr;
+non terminal OptType, Body, Statements, Stat, Vars, Exprs, FunCall, Expr, Op;
 
 // Precedenze e associatività
 precedence left OR;
@@ -193,10 +196,13 @@ Stat ::= Vars:v IN SEMI                                {: RESULT = new ReadOp((L
                 RESULT = call;
                 exprList.clear();
          :}
-       | IF LPAR Expr:e RPAR THEN Body:b1 ELSE Body:b2 {: RESULT = new IfThenElseOp((ExprOp) e,(BodyOp) b1,(BodyOp) b2); :}
-       | IF LPAR Expr:e RPAR THEN Body:b               {: RESULT = new IfThenOp((ExprOp) e,(BodyOp) b); :}
-       | WHILE LPAR Expr:e RPAR DO Body:b              {: RESULT = new WhileOp((ExprOp) e, (BodyOp) b); :}
-       | RETURN Expr:e SEMI                            {: RESULT = new ReturnOp((ExprOp) e); :};
+       | IF LPAR Expr:e RPAR THEN Body:b1 ELSE Body:b2                      {: RESULT = new IfThenElseOp((ExprOp) e,(BodyOp) b1,(BodyOp) b2); :}
+       | IF LPAR Expr:e RPAR THEN Body:b                                    {: RESULT = new IfThenOp((ExprOp) e,(BodyOp) b); :}
+       | WHILE LPAR Expr:e RPAR DO Body:b                                   {: RESULT = new WhileOp((ExprOp) e, (BodyOp) b); :}
+       | RETURN Expr:e SEMI                                                 {: RESULT = new ReturnOp((ExprOp) e); :};
+
+Op ::= ADD:op                                                               {: RESULT = op; :}
+     | MUL:op                                                               {: RESULT = op; :};
 
 // Variabili
 Vars ::= ID:id PIPE Vars {: varList.add(0, new Identifier((String) id)); RESULT = varList; :}
@@ -230,7 +236,12 @@ Expr ::= Expr:e1 PLUS Expr:e2           {: RESULT = new BinaryExprOp((ExprOp) e1
        | NOT Expr:e                      {: RESULT = new UnaryExprOp("not", (ExprOp) e); :}
        | ID:id                           {: RESULT = new Identifier((String) id); :}
        | FunCall:funCall                 {: RESULT = funCall; :}
-       | Constant:c                      {: RESULT = c; :};
+       | Constant:c                      {: RESULT = c; :}
+       | MAP LPAR Op:op COMMA ID:id COMMA Exprs:exprs RPAR
+         {:
+               RESULT = new MapOp((Op) op, new Identifier((String) id), (List<ExprOp>) exprs);
+               exprList.clear();
+         :};
 
 // Tipi e costanti
 TypeOrConstant ::= Type:t     {: RESULT = t; :}

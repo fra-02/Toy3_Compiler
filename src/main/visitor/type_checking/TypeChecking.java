@@ -2,10 +2,7 @@ package main.visitor.type_checking;
 
 import main.nodes.common.Identifier;
 import main.nodes.declarations.*;
-import main.nodes.expr.BinaryExprOp;
-import main.nodes.expr.ExprOp;
-import main.nodes.expr.FunCallOp;
-import main.nodes.expr.UnaryExprOp;
+import main.nodes.expr.*;
 import main.nodes.program.BeginEndOp;
 import main.nodes.program.ProgramOp;
 import main.nodes.statements.*;
@@ -114,6 +111,40 @@ public class TypeChecking implements Visitor {
     @Override
     public void visit(ConstOp constOp) {
         constOp.setType(constOp.getConstantType());
+    }
+
+    @Override
+    public void visit(MapOp mapOp) {
+
+        String idFun = mapOp.getFun().getLessema();
+        String type = symbolTable.lookup(Kind.FUN, idFun);
+        List<ExprOp> exprOpList = mapOp.getExprList();
+        if(type == null){
+            System.err.print("ERROR: Function " + idFun + " not declared");
+            System.exit(1);
+        }
+
+        if(!extractType(type).equals("int")) {
+            System.err.print("ERROR: fun \"" + idFun + "\" arguments in Map expected type int but type is \"" + type + "\"");
+            System.exit(1);
+        }
+
+        if(exprOpList == null) {
+            System.err.print("ERROR: map with fun \"" + idFun +"\" can't have 0 arguments");
+            System.exit(1);
+        }
+
+        ExprOp expr;
+        for(int i = 0; i < exprOpList.size(); i++) {
+            expr = exprOpList.get(i);
+            expr.accept(this);
+            if(!expr.getType().equals("int")) {
+                System.err.print("ERROR: arguments at the position " + (i+1)  + "doesn't have int type");
+                System.exit(1);
+            }
+        }
+
+        mapOp.setType("int");
     }
 
     @Override

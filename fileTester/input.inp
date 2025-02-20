@@ -1,6 +1,14 @@
 program
 
+def fun(a : int) : int {
+    return a;
+}
+
 begin
-x = 1 : int;
-"ciao"+x !>>;
+y = 5 | x : double;
+
+x := map(ADD, xint, 5, 6);
+
+"stampa x: " + x !>>;
+
 end

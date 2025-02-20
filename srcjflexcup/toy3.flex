@@ -1,5 +1,6 @@
 package toy3;
 import java_cup.runtime.*;
+import main.nodes.expr.Op;
 
 %%
 
@@ -71,6 +72,7 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
     "char"             { return symbol(sym.CHAR); }
     "true"             { return symbol(sym.TRUE, true); }
     "false"            { return symbol(sym.FALSE, false); }
+    "map"              { return symbol(sym.MAP); }
     "def"              { return symbol(sym.DEF); }
     "if"               { return symbol(sym.IF); }
     "then"             { return symbol(sym.THEN); }
@@ -81,6 +83,8 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
     "not"              { return symbol(sym.NOT); }
     "and"              { return symbol(sym.AND); }
     "or"               { return symbol(sym.OR); }
+    "ADD"              { return symbol(sym.ADD, Op.ADD); }
+    "MUL"              { return symbol(sym.MUL, Op.MUL); }
     "ref"              { return symbol(sym.REF); }
 
     /* Simboli */
