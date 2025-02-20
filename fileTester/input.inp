@@ -1,6 +1,10 @@
 program
 
 begin
-x = 1 : int;
-"ciao"+x !>>;
+
+x: int;
+
+switch(x + 1)
+end switch;
+
 end

@@ -49,4 +49,8 @@ public interface Visitor {
     void visit(Identifier identifier);
 
     void visit(ConstOp constOp);
+
+    void visit(SwitchOp switchOp);
+
+    void visit(CaseOp caseOp);
 }

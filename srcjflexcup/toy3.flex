@@ -22,7 +22,7 @@ Whitespace = {LineTerminator} | [ \t\f] // spazi, tabulazioni, a capo
 
 // Numeri
 INT_CONST    = \d+ // interi positivi o negativi
-DOUBLE_CONST = (\d*\.\d+|\d+\.\d*)([eE][+-]?\d+)? // numeri in virgola mobile con o senza esponente (es. 1.0, 1.0e-1)
+DOUBLE_CONST = \d+\.\d+([eE][+-]?\d+)? // numeri in virgola mobile con o senza esponente (es. 1.0, 1.0e-1)
 
 // Escape
 ESCAPE_SEQUENCE = \\[bfnrt'\\] // Escape validi
@@ -77,6 +77,8 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
     "else"             { return symbol(sym.ELSE); }
     "while"            { return symbol(sym.WHILE); }
     "do"               { return symbol(sym.DO); }
+    "switch"           { return symbol(sym.SWITCH); }
+    "stop"             { return symbol(sym.STOP); }
     "return"           { return symbol(sym.RETURN); }
     "not"              { return symbol(sym.NOT); }
     "and"              { return symbol(sym.AND); }
@@ -85,6 +87,7 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
 
     /* Simboli */
 
+    "."                { return symbol(sym.DOT); }
     ";"                { return symbol(sym.SEMI); }
     ":"                { return symbol(sym.COLON); }
     ","                { return symbol(sym.COMMA); }
@@ -114,7 +117,6 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
     "/*"              { yybegin(COMMENT_BLOCK); }
 
     {Whitespace}   { /* ignore */ }
-    {INT_CONST}    { return symbol(sym.INT_CONST, Integer.parseInt(yytext())); }
     {DOUBLE_CONST} { try {
                         // Parsing del valore
                         double value = Double.parseDouble(yytext());
@@ -130,6 +132,8 @@ ID = [:jletter:][:jletterdigit:]* // lettera seguita da lettere o numeri
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException("Formato di double non valido: " + yytext());
                     }}
+    {INT_CONST}    { return symbol(sym.INT_CONST, Integer.parseInt(yytext())); }
+
     {STRING_START} { string.setLength(0);      // Pulisce il buffer per una nuova stringa
                      yybegin(STRING); }
     {CHAR_START}   { string.setLength(0);      // Pulisce il buffer per un nuovo carattere

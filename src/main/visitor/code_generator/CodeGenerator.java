@@ -397,6 +397,30 @@ public class CodeGenerator implements Visitor {
     }
 
     @Override
+    public void visit(SwitchOp switchOp) {
+
+        ExprOp expr = switchOp.getExpr();
+        List<CaseOp> caseOpList = switchOp.getCaseList();
+
+        code.append("switch(");
+        expr.accept(this);
+        code.append(") { \n");
+
+        caseOpList.forEach(caseOp -> caseOp.accept(this));
+
+        code.append("}\n");
+    }
+
+    @Override
+    public void visit(CaseOp caseOp) {
+        code.append("case ");
+        caseOp.getExpr().accept(this);
+        code.append(": {\n");
+        caseOp.getStmtList().forEach(stmt -> stmt.accept(this));
+        code.append("}\n break;\n");
+    }
+
+    @Override
     public void visit(BinaryExprOp binaryExprOp) {
         boolean isLeftString = binaryExprOp.getLeft().getType().equals("string");
         boolean isRightString = binaryExprOp.getRight().getType().equals("string");

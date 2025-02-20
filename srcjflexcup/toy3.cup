@@ -28,6 +28,9 @@ import main.nodes.statements.IfThenOp;
 import main.nodes.statements.WhileOp;
 import main.nodes.statements.ReturnOp;
 import main.nodes.statements.BodyOp;
+import main.nodes.statements.CaseOp;
+import main.nodes.statements.SwitchOp;
+
 import main.nodes.types.ConstOp;
 
 parser code {:
@@ -40,12 +43,13 @@ parser code {:
     Stack<List<VarDeclOp>> varDeclStack = new Stack<>(); // Stack delle dichiarazioni delle variabili
     List<VarDeclOp> varDeclList = new ArrayList<>(); // Lista delle dichiarazioni delle variabili
     List<Object> declList = new ArrayList<>(); // Lista delle dichiarazioni
+    List<CaseOp> caseList = new ArrayList<>(); // Lista dei case
 :};
 
 
 // Terminali
 terminal PROGRAM, BEGIN, END, SEMI, COLON, COMMA, DEF, LPAR, RPAR, LBRAC, RBRAC;
-terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO;
+terminal INT, BOOL, DOUBLE, STRING, CHAR, TRUE, FALSE, RETURN, IF, THEN, ELSE, WHILE, DO, SWITCH, STOP, DOT;
 terminal PLUS, MINUS, TIMES, DIV, ASSIGN, ASSIGNDECL, GT, GE, LT, LE, EQ, NE, NOT, AND, OR, IN, OUT, OUTNL, REF, PIPE;
 terminal int INT_CONST;
 terminal double DOUBLE_CONST;
@@ -56,7 +60,7 @@ terminal String ID;
 // Non-terminali
 non terminal Program;
 non terminal Decls, VarDecls, VarDecl, VarsOptInit, TypeOrConstant, Type, Constant, DefDecl, ParDecls, ParDecl, PVars, PVar;
-non terminal OptType, Body, Statements, Stat, Vars, Exprs, FunCall, Expr;
+non terminal OptType, Body, Statements, Stat, Vars, Exprs, FunCall, Expr, Cases, Case;
 
 // Precedenze e associatività
 precedence left OR;
@@ -193,10 +197,16 @@ Stat ::= Vars:v IN SEMI                                {: RESULT = new ReadOp((L
                 RESULT = call;
                 exprList.clear();
          :}
-       | IF LPAR Expr:e RPAR THEN Body:b1 ELSE Body:b2 {: RESULT = new IfThenElseOp((ExprOp) e,(BodyOp) b1,(BodyOp) b2); :}
-       | IF LPAR Expr:e RPAR THEN Body:b               {: RESULT = new IfThenOp((ExprOp) e,(BodyOp) b); :}
-       | WHILE LPAR Expr:e RPAR DO Body:b              {: RESULT = new WhileOp((ExprOp) e, (BodyOp) b); :}
-       | RETURN Expr:e SEMI                            {: RESULT = new ReturnOp((ExprOp) e); :};
+       | IF LPAR Expr:e RPAR THEN Body:b1 ELSE Body:b2              {: RESULT = new IfThenElseOp((ExprOp) e,(BodyOp) b1,(BodyOp) b2); :}
+       | IF LPAR Expr:e RPAR THEN Body:b                            {: RESULT = new IfThenOp((ExprOp) e,(BodyOp) b); :}
+       | WHILE LPAR Expr:e RPAR DO Body:b                           {: RESULT = new WhileOp((ExprOp) e, (BodyOp) b); :}
+       | RETURN Expr:e SEMI                                         {: RESULT = new ReturnOp((ExprOp) e); :}
+       | SWITCH LPAR Expr:e RPAR Cases:cases END SWITCH SEMI        {: RESULT = new SwitchOp((ExprOp) e, (List<CaseOp>) cases); caseList.clear(); :};
+
+Cases ::= Case:c Cases                                              {: caseList.add(0, (CaseOp) c); RESULT = caseList; :}
+       |                                                            {: RESULT = new ArrayList<CaseOp>(); :};
+
+Case  ::= Expr:e DOT Statements:stmts STOP SEMI                     {: RESULT = new CaseOp((ExprOp) e, (List<StatementOp>) stmts ); statList.clear(); :};
 
 // Variabili
 Vars ::= ID:id PIPE Vars {: varList.add(0, new Identifier((String) id)); RESULT = varList; :}

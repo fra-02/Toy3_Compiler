@@ -117,6 +117,36 @@ public class TypeChecking implements Visitor {
     }
 
     @Override
+    public void visit(SwitchOp switchOp) {
+        switchOp.getExpr().accept(this);
+        String typeExpr = switchOp.getExpr().getType();
+        if(!typeExpr.equals("int")) {
+            System.err.print("ERROR: Invalid types in switch expression \"" + typeExpr + "\"");
+            System.exit(1);
+        }
+
+        switchOp.getCaseList().forEach(caseOp -> caseOp.accept(this));
+
+        switchOp.setType("notype");
+    }
+
+    @Override
+    public void visit(CaseOp caseOp) {
+
+        caseOp.getExpr().accept(this);
+        String typeExpr = caseOp.getExpr().getType();
+
+        if(!typeExpr.equals("int")) {
+            System.err.print("ERROR: Invalid types in case switch expression \"" + typeExpr + "\"");
+            System.exit(1);
+        }
+
+        caseOp.getStmtList().forEach(stmt -> stmt.accept(this));
+
+        caseOp.setType("notype");
+    }
+
+    @Override
     public void visit(Identifier id) {
         String type;
         if(isFun) {
