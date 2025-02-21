@@ -1,6 +1,0 @@
-program
-
-begin
-x = 1 : int;
-"ciao"+x !>>;
-end
